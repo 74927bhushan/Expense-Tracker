@@ -1,0 +1,139 @@
+<!-- file-upload.component.html -->
+<div class="container">
+    <!-- Upload Section -->
+    <div class="upload-card">
+        <h2 class="main-title">Upload Excel File</h2>
+
+        <!-- Table Configuration -->
+        <div class="table-config">
+            <div class="input-group">
+                <label class="config-label">Number of Income Tables</label>
+                <input 
+                    type="number" 
+                    [(ngModel)]="incomeTableCount" 
+                    min="0"
+                    class="config-input"
+                    (ngModelChange)="updateLocationsArrays()" 
+                />
+            </div>
+            <div class="input-group">
+                <label class="config-label">Number of Expense Tables</label>
+                <input 
+                    type="number" 
+                    [(ngModel)]="expenseTableCount" 
+                    min="0"
+                    class="config-input"
+                    (ngModelChange)="updateLocationsArrays()" 
+                />
+            </div>
+        </div>
+
+        <!-- Table Locations -->
+        <div class="locations-container">
+            <!-- Income Locations -->
+            <div *ngIf="incomeTableCount > 0" class="locations-group">
+                <h3 class="section-title">Income Table Locations</h3>
+                <div *ngFor="let i of createArray(incomeTableCount); let index = index" class="location-input">
+                    <input 
+                        type="text" 
+                        [(ngModel)]="incomeLocations[index]"
+                        [placeholder]="getLocationPlaceholder(index)"
+                        [class.invalid]="incomeLocations[index] && !isLocationValid(incomeLocations[index])"
+                        [class.valid]="incomeLocations[index] && isLocationValid(incomeLocations[index])"
+                        (ngModelChange)="validateForm()"
+                        class="location-field"
+                    />
+                </div>
+            </div>
+
+            <!-- Expense Locations -->
+            <div *ngIf="expenseTableCount > 0" class="locations-group">
+                <h3 class="section-title">Expense Table Locations</h3>
+                <div *ngFor="let i of createArray(expenseTableCount); let index = index" class="location-input">
+                    <input 
+                        type="text" 
+                        [(ngModel)]="expenseLocations[index]"
+                        [placeholder]="getLocationPlaceholder(index)"
+                        [class.invalid]="expenseLocations[index] && !isLocationValid(expenseLocations[index])"
+                        [class.valid]="expenseLocations[index] && isLocationValid(expenseLocations[index])"
+                        (ngModelChange)="validateForm()"
+                        class="location-field"
+                    />
+                </div>
+            </div>
+        </div>
+
+        <!-- File Upload -->
+        <div class="file-upload">
+            <input 
+                type="file"
+                #fileInput
+                (change)="onFileSelected($event)"
+                accept=".xlsx,.xls"
+                class="file-input"
+            />
+            
+            <p class="file-name" *ngIf="fileToUpload">
+                Selected file: {{ fileToUpload.name }}
+            </p>
+
+            <button 
+                (click)="uploadFile()"
+                [disabled]="!isValid || isUploading"
+                [class.disabled]="!isValid || isUploading"
+                class="upload-button"
+            >
+                <span *ngIf="!isUploading">
+                    {{ fileToUpload ? 'Upload File' : 'Select a file' }}
+                </span>
+                <span *ngIf="isUploading">Uploading...</span>
+            </button>
+        </div>
+
+        <!-- Error Message -->
+        <div *ngIf="errorMessage" class="error-message">
+            {{ errorMessage }}
+        </div>
+    </div>
+
+    <!-- Tables Section -->
+    <div class="tables-container">
+        <div class="table-section">
+            <h2 class="table-title">Income Table</h2>
+            <app-income-table #incomeTable></app-income-table>
+        </div>
+        <div class="table-section">
+            <h2 class="table-title">Expense Table</h2>
+            <app-expense-table #expenseTable></app-expense-table>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div *ngIf="showCharts" class="charts-container">
+        <div class="chart-section">
+            <h3>Income Distribution</h3>
+            <ngx-charts-pie-chart
+                [view]="view"
+                [results]="incomeChartData"
+                [gradient]="gradient"
+                [legend]="showLegend"
+                [labels]="showLabels"
+                [doughnut]="doughnut"
+                [animations]="true"
+                [explodeSlices]="explodeSlices">
+            </ngx-charts-pie-chart>
+        </div>
+        <div class="chart-section">
+            <h3>Expense Distribution</h3>
+            <ngx-charts-pie-chart
+                [view]="view"
+                [results]="expenseChartData"
+                [gradient]="gradient"
+                [legend]="showLegend"
+                [labels]="showLabels"
+                [doughnut]="doughnut"
+                [animations]="true"
+                [explodeSlices]="explodeSlices">
+            </ngx-charts-pie-chart>
+        </div>
+    </div>
